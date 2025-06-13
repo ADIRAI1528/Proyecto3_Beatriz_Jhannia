@@ -1,9 +1,9 @@
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-public class Proyecto
+public class Equipo
 {
-    [BsonId]
-    [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
+    [BsonId, BsonRepresentation(BsonType.ObjectId)]
     public string? Id { get; set; } 
 
      [BsonElement("escuela")]
@@ -16,7 +16,7 @@ public class Proyecto
     public string Grupo { get; set; } = string.Empty;
 
     [BsonElement("datos_semestre")]
-    public string DatosSemestre { get; set; } = string.Empty;
+    public int DatosSemestre { get; set; }
     [BsonElement("proyecto")]
     public string NombreProyecto { get; set; }  = string.Empty;
 

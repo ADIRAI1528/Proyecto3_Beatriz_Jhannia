@@ -5,7 +5,7 @@ using MongoDB.Driver;
 [ApiController]
 [Route("api/usuarios")]
 
-Public class ApiUsuariosController : ControllerBase
+public class ApiUsuariosController : ControllerBase
 {
     // Metodos para hacer las operaciones CRUD
     // C = Create
@@ -16,9 +16,9 @@ Public class ApiUsuariosController : ControllerBase
 
     public ApiUsuariosController()
     {
-        var client = new MongoClient(CadenaConexion.Mongo_DB);
+        var client = new MongoClient(CadenasConexion.MONGO_DB);
         var database = client.GetDatabase("parcial3_Escuela");
-        this.collection = database.GetCollection<Usuario>("Usuarios");
+        this.Collection = database.GetCollection<Usuario>("Usuarios");
     }
 
     [HttpGet]
@@ -26,7 +26,7 @@ Public class ApiUsuariosController : ControllerBase
     public IActionResult ListarUsuarios()
     {
         var filter = FilterDefinition<Usuario>.Empty;
-        var list = this.collection.Find(filter).ToList();
-        return ok(list);
+        var list = this.Collection.Find(filter).ToList();
+        return Ok(list);
     }
 }
