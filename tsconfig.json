@@ -10,5 +10,5 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "./wwwroot/js"
   },
-  "include": ["Proyecto3_Beatriz_Jhannia/ClientApp/**/*"]
+  "include": ["ClientApp/**/*"]
 }

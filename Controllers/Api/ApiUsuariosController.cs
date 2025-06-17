@@ -7,26 +7,76 @@ using MongoDB.Driver;
 
 public class ApiUsuariosController : ControllerBase
 {
-    // Metodos para hacer las operaciones CRUD
-    // C = Create
-    // R = Update
-    // D = Delete
 
-    private readonly IMongoCollection<Usuario> Collection;
 
-    public ApiUsuariosController()
+
+
+
+  private readonly IMongoCollection<Usuario> collection;
+  public ApiUsuariosController()
+  {
+    var client = new MongoClient(CadenasConexion.MONGO_DB);
+    var database = client.GetDatabase("Escuela_Beatriz_Jhannia");
+    this.collection = database.GetCollection<Usuario>("Usuarios");
+
+  }
+
+  [HttpGet]
+  public IActionResult ListarUsuarios(string? texto)
+  {
+    var filter = FilterDefinition<Usuario>.Empty;
+    if (!string.IsNullOrWhiteSpace(texto))
     {
-        var client = new MongoClient(CadenasConexion.MONGO_DB);
-        var database = client.GetDatabase("parcial3_Escuela");
-        this.Collection = database.GetCollection<Usuario>("Usuarios");
+      var filterNombre = Builders<Usuario>.Filter.Regex(u => u.Nombre, new BsonRegularExpression(texto, "i"));
+      var filterCorreo = Builders<Usuario>.Filter.Regex(u => u.Correo, new BsonRegularExpression(texto, "i"));
+      filter = Builders<Usuario>.Filter.Or(filterNombre, filterCorreo);
+    }
+    var list = this.collection.Find(filter).ToList();
+    return Ok(list);
+  }
+
+[HttpDelete("{id}")]
+  public IActionResult Delete(string id)
+  {
+    var filter = Builders<Usuario>.Filter.Eq(x => x.Id, id);
+    var item = this.collection.Find(filter).FirstOrDefault();
+    if (item != null)
+    {
+      this.collection.DeleteOne(filter);
+    }
+    return NoContent();
+  }
+  [HttpPost]
+  public IActionResult Create(UsuarioRequest model)
+  {
+    //1. Validar el modelo para que contenga datos
+    if (string.IsNullOrWhiteSpace(model.Correo))
+    {
+      return BadRequest("El correo es requerido");
+    }
+   
+    if (string.IsNullOrWhiteSpace(model.Password))
+    {
+      return BadRequest("El password es requerido");
     }
 
-    [HttpGet]
-
-    public IActionResult ListarUsuarios()
+     if (string.IsNullOrWhiteSpace(model.Nombre))
     {
-        var filter = FilterDefinition<Usuario>.Empty;
-        var list = this.Collection.Find(filter).ToList();
-        return Ok(list);
+      return BadRequest("El nombre es requerido");
     }
+    // Validar que el correo no existe 
+    var filter = Builders<Usuario>.Filter.Eq(x=> x.Correo, model.Correo);
+    var item = this.collection.Find(filter).FirstOrDefault();
+    if (item != null)
+    {
+      return BadRequest("El correo" + model.Correo + "ya exist en la base de datos");
+    }
+
+    Usuario bd= new Usuario();
+    bd.Nombre=model.Nombre;
+    bd.Correo=model.Correo;
+    bd.Password=model.Password;
+    this.collection.InsertOne(bd);
+    return Ok();
+  }
 }
